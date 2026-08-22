@@ -29,19 +29,25 @@ def ler_instancia(caminho: str):
             if nome_regiao not in regioes_por_nome:
                 regioes_por_nome[nome_regiao] = []
 
-            regioes_por_nome[nome_regiao].append((i+1, j+1))  
+            regioes_por_nome[nome_regiao].append(
+                (i + 1, j + 1)
+            )
 
-        regioes = list(regioes_por_nome.values())
+    regioes = list(regioes_por_nome.values())
 
-        quantidade_pistas = int(linhas[n+1])
+    quantidade_pistas = int(linhas[n + 1])
 
-        pistas = []
+    pistas = []
 
-        for indice in range(n+2, n+2+quantidade_pistas):
-            linhas, coluna, valor = map(int, linhas[indice].split())      
-            pistas.append(( linha, coluna, valor))
+    for indice in range(n + 2, n + 2 + quantidade_pistas):
+        linha, coluna, valor = map(
+            int,
+            linhas[indice].split()
+        )
 
-    return n, regioes, pistas        
+        pistas.append((linha, coluna, valor))
+
+    return n, regioes, pistas       
 
 def validar_instancia(n: int, regioes: Regioes, pistas: Pistas) -> None:
     if n <= 0:
@@ -104,8 +110,8 @@ def gerar_clausulas_linhas(n: int) -> List[Clausula]:
 def gerar_clausulas_colunas(n:int) -> List[Clausula]:
     clausulas = []
 
-    for j in range (1, n+1):
-        for k in range(1, n+1):
+    for i in range(1, n + 1):
+        for l in range(i + 1, n + 1):
             clausula = []
             for i in range(1, n+1):
                 clausula.append(id_variavel(i,j,k,n))
@@ -139,26 +145,19 @@ def gerar_clausulas_regioes(n: int, regioes: Regioes) -> List[Clausula]:
 
     return clausulas
 
+def gerar_clausulas_pistas(n:int, pistas: Pistas) -> List[Clausula]:
+    clausulas = []
+
+    for linha, coluna, valor in pistas:
+        clausulas.append([id_variavel(linha, coluna, valor, n)])
+
+    return clausulas
+
 if __name__ == "__main__":
     n,regioes, pistas = ler_instancia("instancias/chaos4_01.txt")
 
     validar_instancia(n, regioes, pistas)
+    clausulas_pistas = gerar_clausulas_pistas(n,pistas)
 
-    clausulas_celulas = gerar_clausulas_celulas(n)
-    clausulas_linhas = gerar_clausulas_linhas(n)
-    clausulas_colunas = gerar_clausulas_colunas(n)
-    clausulas_regioes = gerar_clausulas_regioes(n, regioes)
-
-    print("Células:", len(clausulas_celulas))
-    print("Linhas:", len(clausulas_linhas))
-    print("Colunas:", len(clausulas_colunas))
-    print("Regiões:", len(clausulas_regioes))
-
-    total = (
-        len(clausulas_celulas)
-        + len(clausulas_linhas)
-        + len(clausulas_colunas)
-        + len(clausulas_regioes)
-    )
-
-    print("Total:", total)
+    print("Pistas:", pistas)
+    print("Cláusulas das pistas:", clausulas_pistas)
