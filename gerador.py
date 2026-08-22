@@ -85,6 +85,21 @@ def gerar_clausulas_celulas(n:int) -> List[Clausula]:
                     clausulas.append([-id_variavel(i,j,k,n), -id_variavel(i,j,l,n)])    
     return clausulas
 
+def gerador_clausulas_linhas(n: int) -> List[Clausula]:
+    clausulas = []
+
+    for i in range (1, n+1):
+        for k in range(1, n+1):
+            clausula = []
+            for j in range(1, n+1):
+                clausula.append(id_variavel(i,j,k,n))
+
+            clausulas.append(clausula)
+
+            for j in range(1,n+1):
+                for l in range(j+1, n+1):
+                    clausulas.append([-id_variavel(i,j,k,n),-id_variavel(i,l,k,n)])
+    return clausulas
 
 
 if __name__ == "__main__":
@@ -92,10 +107,13 @@ if __name__ == "__main__":
 
     validar_instancia(n, regioes, pistas)
 
-    clausulas = gerar_clausulas_celulas(n)
-    print("Quantidade de claúsulas: ", len(clausulas))
+    clausulas_celulas = gerar_clausulas_celulas(n)
+    clausulas_linhas = gerador_clausulas_linhas(n)
 
-    for clausula in clausulas[:10]:
+    print("Clausulas das células: ", len(clausulas_celulas))
+    print("Clausulas das linhas: ", len(clausulas_linhas))
+
+    for clausula in clausulas_linhas[:7]:
         print(clausula)
 
     
