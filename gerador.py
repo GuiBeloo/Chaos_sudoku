@@ -179,22 +179,27 @@ def validar_cnf(n: int, clausulas: List[Clausula], quantidade_pistas: int) -> No
             if not(1 <= abs(literal) <= numero_variaveis):
                 raise ValueError(f"Literal inválido encontrado: {literal}")
 
+
+def escrever_dimacs(n: int, clausulas: List[Clausula]) -> None:
+
+    quantidade_variaveis = n**3
+    quantidade_clausulas = len(clausulas)
+
+    print(f"p cnf {quantidade_variaveis} {quantidade_clausulas}")
+
+    for clausula in clausulas:
+        print(*clausula, 0)
+
 if __name__ == "__main__":
     n,regioes, pistas = ler_instancia("instancias/chaos4_01.txt")
 
     validar_instancia(n, regioes, pistas)
 
-    clausulas = gerar_cnf(
-        n,
-        regioes,
-        pistas
-    )
+    clausulas = gerar_cnf(n,regioes,pistas)
 
-    validar_cnf(
-        n,
-        clausulas,
-        len(pistas)
-    )
+    validar_cnf(n,clausulas,len(pistas))
+
+    escrever_dimacs(n, clausulas)
 
     print("N:", n)
     print("Quantidade de variáveis:", n ** 3)
