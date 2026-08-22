@@ -19,7 +19,14 @@ def ler_instancia(caminho: str):
     grade_regioes = []
 
     for i in range(1, n+1):
-        grade_regioes.append(linhas[i].split())
+        linha_regioes = linhas[i].split()
+
+        if len(linha_regioes) != n:
+            raise ValueError(f"a linha {i} da grade deve possuir exatamente {n} regiões")
+
+        grade_regioes.append(linha_regioes)
+
+        
 
     regioes_por_nome = {}
 
@@ -48,7 +55,26 @@ def ler_instancia(caminho: str):
 
         pistas.append((linha, coluna, valor))
 
-    return n, regioes, pistas       
+    return n, regioes, pistas   
+    
+def regiao_conectada(regiao: List[Celula]) -> bool:
+    celulas = set(regiao)
+
+    inicio = regiao[0]
+    visitadas = {inicio}
+    pilha = [inicio]
+
+    while pilha:
+        linha, coluna = pilha.pop()
+
+        vizinhos = [(linha - 1, coluna), (linha + 1, coluna),(linha, coluna - 1), (linha, coluna + 1) ]
+
+        for vizinho in vizinhos:
+            if vizinho in celulas and vizinho not in visitadas:
+                visitadas.add(vizinho)
+                pilha.append(vizinho)
+
+    return len(visitadas) == len(regiao)
 
 def validar_instancia(n: int, regioes: Regioes, pistas: Pistas) -> None:
     if n <= 0:
@@ -61,6 +87,9 @@ def validar_instancia(n: int, regioes: Regioes, pistas: Pistas) -> None:
     for indice,regiao in enumerate(regioes, start=1):
         if len(regiao) != n:
             raise ValueError(f"A região {indice} deve possuir exatamente {n} células")
+
+        if not regiao_conectada(regiao):
+            raise ValueError(f"A região {indice} não é contínua")
 
         for linha, coluna in regiao:
             if not(1 <= linha <= n and 1<= coluna <= n):
@@ -191,24 +220,6 @@ def escrever_dimacs(n: int, clausulas: List[Clausula]) -> None:
     for clausula in clausulas:
         print(*clausula, 0)
 
-def regiao_conectada(regiao: List[Celula]) -> bool:
-    celulas = set(regiao)
-
-    inicio = regiao[0]
-    visitadas = {inicio}
-    pilha = [inicio]
-
-    while pilha:
-        linha, coluna = pilha.pop()
-
-        vizinhos = [(linha - 1, coluna), (linha + 1, coluna),(linha, coluna - 1), (linha, coluna + 1) ]
-
-        for vizinho in vizinhos:
-            if vizinho in celulas and vizinho not in visitadas:
-                visitadas.add(vizinho)
-                pilha.append(vizinho)
-
-    return len(visitadas) == len(regiao)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Gerador DIMACS CNF para Chaos Sudoku")
