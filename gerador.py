@@ -1,3 +1,4 @@
+import argparse
 from typing import List, Tuple
 
 Celula = tuple[int, int]
@@ -190,17 +191,24 @@ def escrever_dimacs(n: int, clausulas: List[Clausula]) -> None:
     for clausula in clausulas:
         print(*clausula, 0)
 
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Gerador DIMACS CNF para Chaos Sudoku")
+
+    parser.add_argument("instancia",  help="Caminho para o arquivo da instância")
+
+    argumentos = parser.parse_args()
+    try:
+        n,regioes,pistas = ler_instancia(argumentos.instancia)
+
+        validar_instancia(n, regioes, pistas)
+
+        clausulas = gerar_cnf(n,regioes, pistas)
+
+        validar_cnf(n, clausulas, len(pistas))
+
+        escrever_dimacs(n, clausulas)
+    except(ValueError, FileNotFoundError, IndexError) as erro:
+        parser.error(str(erro))
+
 if __name__ == "__main__":
-    n,regioes, pistas = ler_instancia("instancias/chaos4_01.txt")
-
-    validar_instancia(n, regioes, pistas)
-
-    clausulas = gerar_cnf(n,regioes,pistas)
-
-    validar_cnf(n,clausulas,len(pistas))
-
-    escrever_dimacs(n, clausulas)
-
-    print("N:", n)
-    print("Quantidade de variáveis:", n ** 3)
-    print("Quantidade de cláusulas:", len(clausulas))
+    main()
