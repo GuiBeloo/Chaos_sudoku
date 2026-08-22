@@ -110,8 +110,8 @@ def gerar_clausulas_linhas(n: int) -> List[Clausula]:
 def gerar_clausulas_colunas(n:int) -> List[Clausula]:
     clausulas = []
 
-    for i in range(1, n + 1):
-        for l in range(i + 1, n + 1):
+    for j in range (1, n+1):
+        for k in range(1, n+1):
             clausula = []
             for i in range(1, n+1):
                 clausula.append(id_variavel(i,j,k,n))
@@ -119,7 +119,7 @@ def gerar_clausulas_colunas(n:int) -> List[Clausula]:
             clausulas.append(clausula)
 
             for i in range(1,n+1):
-                for l in range(j+1, n+1):
+                for l in range(i+1, n+1):
                     clausulas.append([-id_variavel(i,j,k,n),-id_variavel(l,j,k,n)])
     return clausulas
 
