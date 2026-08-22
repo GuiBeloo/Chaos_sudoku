@@ -117,6 +117,28 @@ def gerar_clausulas_colunas(n:int) -> List[Clausula]:
                     clausulas.append([-id_variavel(i,j,k,n),-id_variavel(l,j,k,n)])
     return clausulas
 
+def gerar_clausulas_regioes(n: int, regioes: Regioes) -> List[Clausula]:
+
+    clausulas = []
+
+    for regiao in regioes:
+        for k in range(1, n+1):
+            clausula = []
+
+            for linha,coluna in regiao:
+                clausula.append(id_variavel(linha,coluna,k,n))
+
+            clausulas.append(clausula)
+
+            for a in range(len(regiao)):
+                for b in range(a+1, len(regiao)):
+                    linha1, coluna1 = regiao[a]
+                    linha2, coluna2 = regiao[b]
+
+                    clausulas.append([-id_variavel(linha1,coluna1,k, n),-id_variavel(linha2,coluna2,k, n)])
+
+    return clausulas
+
 if __name__ == "__main__":
     n,regioes, pistas = ler_instancia("instancias/chaos4_01.txt")
 
@@ -125,16 +147,18 @@ if __name__ == "__main__":
     clausulas_celulas = gerar_clausulas_celulas(n)
     clausulas_linhas = gerar_clausulas_linhas(n)
     clausulas_colunas = gerar_clausulas_colunas(n)
+    clausulas_regioes = gerar_clausulas_regioes(n, regioes)
 
     print("Células:", len(clausulas_celulas))
     print("Linhas:", len(clausulas_linhas))
     print("Colunas:", len(clausulas_colunas))
+    print("Regiões:", len(clausulas_regioes))
 
-    for clausula in clausulas_colunas[:7]:
-        print(clausula)
+    total = (
+        len(clausulas_celulas)
+        + len(clausulas_linhas)
+        + len(clausulas_colunas)
+        + len(clausulas_regioes)
+    )
 
-    
-    print(f"N: {n}")
-    print(f"Regiões: {regioes}")
-    print(f"Pistas: {pistas}")
-    
+    print("Total:", total)
