@@ -191,6 +191,25 @@ def escrever_dimacs(n: int, clausulas: List[Clausula]) -> None:
     for clausula in clausulas:
         print(*clausula, 0)
 
+def regiao_conectada(regiao: List[Celula]) -> bool:
+    celulas = set(regiao)
+
+    inicio = regiao[0]
+    visitadas = {inicio}
+    pilha = [inicio]
+
+    while pilha:
+        linha, coluna = pilha.pop()
+
+        vizinhos = [(linha - 1, coluna), (linha + 1, coluna),(linha, coluna - 1), (linha, coluna + 1) ]
+
+        for vizinho in vizinhos:
+            if vizinho in celulas and vizinho not in visitadas:
+                visitadas.add(vizinho)
+                pilha.append(vizinho)
+
+    return len(visitadas) == len(regiao)
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Gerador DIMACS CNF para Chaos Sudoku")
 
