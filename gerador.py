@@ -69,11 +69,37 @@ def validar_instancia(n: int, regioes: Regioes, pistas: Pistas) -> None:
         if not(1 <= linha <= n and 1 <= coluna <= n and 1 <= valor <= n):
             raise ValueError(f"Pista inválida: ({linha}, {coluna}, {valor})")
 
+def gerar_clausulas_celulas(n:int) -> List[Clausula]:
+
+    clausulas = []
+
+    for i in range(1, n+1):
+        for j in range(1, n+1):
+            clausula = []
+            for k in range(1, n+1):
+                clausula.append(id_variavel(i,j,k,n))
+            clausulas.append(clausula)
+
+            for k in range(1, n+1):
+                for l in range(k+1, n+1):
+                    clausulas.append([-id_variavel(i,j,k,n), -id_variavel(i,j,l,n)])    
+    return clausulas
+
+
+
 if __name__ == "__main__":
     n,regioes, pistas = ler_instancia("instancias/chaos4_01.txt")
 
     validar_instancia(n, regioes, pistas)
 
+    clausulas = gerar_clausulas_celulas(n)
+    print("Quantidade de claúsulas: ", len(clausulas))
+
+    for clausula in clausulas[:10]:
+        print(clausula)
+
+    
     print(f"N: {n}")
     print(f"Regiões: {regioes}")
     print(f"Pistas: {pistas}")
+    
