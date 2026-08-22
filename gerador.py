@@ -153,11 +153,49 @@ def gerar_clausulas_pistas(n:int, pistas: Pistas) -> List[Clausula]:
 
     return clausulas
 
+def gerar_cnf(n: int, regioes: Regioes, pistas: Pistas) -> List[Clausula]:
+    clausulas = []
+
+    clausulas.extend(gerar_clausulas_celulas(n))
+    clausulas.extend(gerar_clausulas_linhas(n))
+    clausulas.extend(gerar_clausulas_colunas(n))
+    clausulas.extend(gerar_clausulas_regioes(n, regioes))
+    clausulas.extend(gerar_clausulas_pistas(n, pistas))
+
+    return clausulas
+
+def validar_cnf(n: int, clausulas: List[Clausula], quantidade_pistas: int) -> None:
+    numero_variaveis = n **3
+
+    pares = n*(n-1) //2
+
+    clausulas_esperadas = (4 * n ** 2 + 4 * n ** 2 * pares + quantidade_pistas)
+
+    if len(clausulas) != clausulas_esperadas:
+        raise ValueError(f"quantidade de clausulas incorretas\nEsperado: {clausulas_esperadas}\nGerado: {len(clausulas)}")
+
+    for clausula in clausulas:
+        for literal in clausula:
+            if not(1 <= abs(literal) <= numero_variaveis):
+                raise ValueError(f"Literal inválido encontrado: {literal}")
+
 if __name__ == "__main__":
     n,regioes, pistas = ler_instancia("instancias/chaos4_01.txt")
 
     validar_instancia(n, regioes, pistas)
-    clausulas_pistas = gerar_clausulas_pistas(n,pistas)
 
-    print("Pistas:", pistas)
-    print("Cláusulas das pistas:", clausulas_pistas)
+    clausulas = gerar_cnf(
+        n,
+        regioes,
+        pistas
+    )
+
+    validar_cnf(
+        n,
+        clausulas,
+        len(pistas)
+    )
+
+    print("N:", n)
+    print("Quantidade de variáveis:", n ** 3)
+    print("Quantidade de cláusulas:", len(clausulas))
