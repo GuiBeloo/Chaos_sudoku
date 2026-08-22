@@ -85,7 +85,7 @@ def gerar_clausulas_celulas(n:int) -> List[Clausula]:
                     clausulas.append([-id_variavel(i,j,k,n), -id_variavel(i,j,l,n)])    
     return clausulas
 
-def gerador_clausulas_linhas(n: int) -> List[Clausula]:
+def gerar_clausulas_linhas(n: int) -> List[Clausula]:
     clausulas = []
 
     for i in range (1, n+1):
@@ -101,6 +101,21 @@ def gerador_clausulas_linhas(n: int) -> List[Clausula]:
                     clausulas.append([-id_variavel(i,j,k,n),-id_variavel(i,l,k,n)])
     return clausulas
 
+def gerar_clausulas_colunas(n:int) -> List[Clausula]:
+    clausulas = []
+
+    for j in range (1, n+1):
+        for k in range(1, n+1):
+            clausula = []
+            for i in range(1, n+1):
+                clausula.append(id_variavel(i,j,k,n))
+
+            clausulas.append(clausula)
+
+            for i in range(1,n+1):
+                for l in range(j+1, n+1):
+                    clausulas.append([-id_variavel(i,j,k,n),-id_variavel(l,j,k,n)])
+    return clausulas
 
 if __name__ == "__main__":
     n,regioes, pistas = ler_instancia("instancias/chaos4_01.txt")
@@ -108,12 +123,14 @@ if __name__ == "__main__":
     validar_instancia(n, regioes, pistas)
 
     clausulas_celulas = gerar_clausulas_celulas(n)
-    clausulas_linhas = gerador_clausulas_linhas(n)
+    clausulas_linhas = gerar_clausulas_linhas(n)
+    clausulas_colunas = gerar_clausulas_colunas(n)
 
-    print("Clausulas das células: ", len(clausulas_celulas))
-    print("Clausulas das linhas: ", len(clausulas_linhas))
+    print("Células:", len(clausulas_celulas))
+    print("Linhas:", len(clausulas_linhas))
+    print("Colunas:", len(clausulas_colunas))
 
-    for clausula in clausulas_linhas[:7]:
+    for clausula in clausulas_colunas[:7]:
         print(clausula)
 
     
