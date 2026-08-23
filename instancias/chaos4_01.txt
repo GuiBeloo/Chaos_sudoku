@@ -1,9 +1,6 @@
 4
-A A B B
-A C C B
-A C D B
-C D D D
-3
-1 1 1
-2 3 4
-4 2 2
+A A C C
+D A A C
+D B B C
+D D B B
+0
