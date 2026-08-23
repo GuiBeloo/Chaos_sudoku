@@ -64,6 +64,19 @@ def exibir_grade(grade: list[list[int]]) -> None:
     for linha in grade:
         print(" ".join(map(str,linha)))
 
+def ler_resultado(caminho: str) -> str:
+    with open(caminho, "r", encoding="utf-8") as arquivo:
+        for linha in arquivo:
+            if linha.startswith("s "):
+                resultado = linha.split()[1]
+
+                if resultado == "SATISFIABLE":
+                    return "SAT"
+
+                if resultado == "UNSATISFIABLE":
+                    return "UNSAT"
+    raise ValueError("O arquivo não contém um resultado válido do Cadical")
+
 def main() -> None:
 
     parser = argparse.ArgumentParser(description="Reoconstrói a solução de um Chaos sudoku a partir do modelo do Cadical")
@@ -74,11 +87,20 @@ def main() -> None:
 
     argumentos = parser.parse_args()
 
+    resultado = ler_resultado(argumentos.resultado)
+
+    if resultado == "UNSAT":
+        print("Resultado: UNSAT")
+        print("A instância não possui solução")
+        return
+
     n, grade_regioes = ler_instancia(argumentos.instancia)
 
     literais = ler_modelo(argumentos.resultado)
 
     grade = reconstruir_grade(literais, n)
+
+    print("Resultado: SAT")
 
     exibir_grade(grade)
     exibir_regioes(grade_regioes)
