@@ -7,7 +7,7 @@ Regioes = List[List[Celula]]
 Pista = Tuple[int, int, int]
 Pistas = List[Pista]
 
-def id_variavel(i: int, j: int, k: int, n:int) -> int:
+def id_variavel(i: int, j: int, k: int, n: int) -> int:
     return (i-1) * n**2 + (j-1) * n + k
 
 def ler_instancia(caminho: str):
@@ -26,8 +26,6 @@ def ler_instancia(caminho: str):
 
         grade_regioes.append(linha_regioes)
 
-        
-
     regioes_por_nome = {}
 
     for i in range(n):
@@ -45,6 +43,17 @@ def ler_instancia(caminho: str):
 
     quantidade_pistas = int(linhas[n + 1])
 
+    if quantidade_pistas < 0:
+        raise ValueError("A quantidade de pistas não pode ser negativa")
+
+    quantidade_linhas_esperada = n + 2 + quantidade_pistas
+
+    if len(linhas) != quantidade_linhas_esperada:
+        raise ValueError(
+            f"A instância declara {quantidade_pistas} pistas, "
+            f"mas possui {len(linhas) - (n + 2)} linhas de pistas"
+        )
+
     pistas = []
 
     for indice in range(n + 2, n + 2 + quantidade_pistas):
@@ -55,8 +64,8 @@ def ler_instancia(caminho: str):
 
         pistas.append((linha, coluna, valor))
 
-    return n, regioes, pistas   
-    
+    return n, regioes, pistas
+
 def regiao_conectada(regiao: List[Celula]) -> bool:
     celulas = set(regiao)
 
@@ -67,7 +76,7 @@ def regiao_conectada(regiao: List[Celula]) -> bool:
     while pilha:
         linha, coluna = pilha.pop()
 
-        vizinhos = [(linha - 1, coluna), (linha + 1, coluna),(linha, coluna - 1), (linha, coluna + 1) ]
+        vizinhos = [(linha - 1, coluna), (linha + 1, coluna), (linha, coluna - 1), (linha, coluna + 1)]
 
         for vizinho in vizinhos:
             if vizinho in celulas and vizinho not in visitadas:
@@ -84,7 +93,7 @@ def validar_instancia(n: int, regioes: Regioes, pistas: Pistas) -> None:
 
     celulas_encontradas = set()
 
-    for indice,regiao in enumerate(regioes, start=1):
+    for indice, regiao in enumerate(regioes, start=1):
         if len(regiao) != n:
             raise ValueError(f"A região {indice} deve possuir exatamente {n} células")
 
@@ -92,21 +101,20 @@ def validar_instancia(n: int, regioes: Regioes, pistas: Pistas) -> None:
             raise ValueError(f"A região {indice} não é contínua")
 
         for linha, coluna in regiao:
-            if not(1 <= linha <= n and 1<= coluna <= n):
+            if not (1 <= linha <= n and 1 <= coluna <= n):
                 raise ValueError(f"Célula ({linha}, {coluna}) fora dos limites da grade")
-            if(linha, coluna) in celulas_encontradas:
+            if (linha, coluna) in celulas_encontradas:
                 raise ValueError(f"A célula ({linha}, {coluna}) aparece em mais de uma região.")
-            celulas_encontradas.add((linha,coluna))
+            celulas_encontradas.add((linha, coluna))
 
     if len(celulas_encontradas) != n**2:
         raise ValueError("Nem todas as células da grade pertencem a uma região")
 
     for linha, coluna, valor in pistas:
-        if not(1 <= linha <= n and 1 <= coluna <= n and 1 <= valor <= n):
+        if not (1 <= linha <= n and 1 <= coluna <= n and 1 <= valor <= n):
             raise ValueError(f"Pista inválida: ({linha}, {coluna}, {valor})")
 
-def gerar_clausulas_celulas(n:int) -> List[Clausula]:
-
+def gerar_clausulas_celulas(n: int) -> List[Clausula]:
     clausulas = []
 
     for i in range(1, n+1):
@@ -118,13 +126,13 @@ def gerar_clausulas_celulas(n:int) -> List[Clausula]:
 
             for k in range(1, n+1):
                 for l in range(k+1, n+1):
-                    clausulas.append([-id_variavel(i,j,k,n), -id_variavel(i,j,l,n)])    
+                    clausulas.append([-id_variavel(i,j,k,n), -id_variavel(i,j,l,n)])
     return clausulas
 
 def gerar_clausulas_linhas(n: int) -> List[Clausula]:
     clausulas = []
 
-    for i in range (1, n+1):
+    for i in range(1, n+1):
         for k in range(1, n+1):
             clausula = []
             for j in range(1, n+1):
@@ -132,15 +140,15 @@ def gerar_clausulas_linhas(n: int) -> List[Clausula]:
 
             clausulas.append(clausula)
 
-            for j in range(1,n+1):
+            for j in range(1, n+1):
                 for l in range(j+1, n+1):
-                    clausulas.append([-id_variavel(i,j,k,n),-id_variavel(i,l,k,n)])
+                    clausulas.append([-id_variavel(i,j,k,n), -id_variavel(i,l,k,n)])
     return clausulas
 
-def gerar_clausulas_colunas(n:int) -> List[Clausula]:
+def gerar_clausulas_colunas(n: int) -> List[Clausula]:
     clausulas = []
 
-    for j in range (1, n+1):
+    for j in range(1, n+1):
         for k in range(1, n+1):
             clausula = []
             for i in range(1, n+1):
@@ -148,20 +156,19 @@ def gerar_clausulas_colunas(n:int) -> List[Clausula]:
 
             clausulas.append(clausula)
 
-            for i in range(1,n+1):
+            for i in range(1, n+1):
                 for l in range(i+1, n+1):
-                    clausulas.append([-id_variavel(i,j,k,n),-id_variavel(l,j,k,n)])
+                    clausulas.append([-id_variavel(i,j,k,n), -id_variavel(l,j,k,n)])
     return clausulas
 
 def gerar_clausulas_regioes(n: int, regioes: Regioes) -> List[Clausula]:
-
     clausulas = []
 
     for regiao in regioes:
         for k in range(1, n+1):
             clausula = []
 
-            for linha,coluna in regiao:
+            for linha, coluna in regiao:
                 clausula.append(id_variavel(linha,coluna,k,n))
 
             clausulas.append(clausula)
@@ -171,11 +178,11 @@ def gerar_clausulas_regioes(n: int, regioes: Regioes) -> List[Clausula]:
                     linha1, coluna1 = regiao[a]
                     linha2, coluna2 = regiao[b]
 
-                    clausulas.append([-id_variavel(linha1,coluna1,k, n),-id_variavel(linha2,coluna2,k, n)])
+                    clausulas.append([-id_variavel(linha1,coluna1,k,n), -id_variavel(linha2,coluna2,k,n)])
 
     return clausulas
 
-def gerar_clausulas_pistas(n:int, pistas: Pistas) -> List[Clausula]:
+def gerar_clausulas_pistas(n: int, pistas: Pistas) -> List[Clausula]:
     clausulas = []
 
     for linha, coluna, valor in pistas:
@@ -195,49 +202,89 @@ def gerar_cnf(n: int, regioes: Regioes, pistas: Pistas) -> List[Clausula]:
     return clausulas
 
 def validar_cnf(n: int, clausulas: List[Clausula], quantidade_pistas: int) -> None:
-    numero_variaveis = n **3
+    # verificação de sanidade: recalcula quantas clausulas cada grupo de
+    # restrição deveria produzir (a partir da combinatoria do problema, e
+    # não copiando o que o codigo acima efetivamente fez) e compara com o
+    # que foi realmente gerado.
+    numero_variaveis = n**3
 
-    pares = n*(n-1) //2
+    pares = n*(n-1) // 2
 
-    clausulas_esperadas = (4 * n ** 2 + 4 * n ** 2 * pares + quantidade_pistas)
+    clausulas_esperadas = (4 * n**2 + 4 * n**2 * pares + quantidade_pistas)
 
     if len(clausulas) != clausulas_esperadas:
         raise ValueError(f"quantidade de clausulas incorretas\nEsperado: {clausulas_esperadas}\nGerado: {len(clausulas)}")
 
     for clausula in clausulas:
         for literal in clausula:
-            if not(1 <= abs(literal) <= numero_variaveis):
+            if not (1 <= abs(literal) <= numero_variaveis):
                 raise ValueError(f"Literal inválido encontrado: {literal}")
 
+def validar_saida_dimacs(cabecalho: str, linhas_corpo: List[str], numero_variaveis: int) -> None:
+    # segunda camada de verificação: confere o TEXTO que efetivamente vai
+    # ser escrito no stdout (e não só as estruturas internas em Python),
+    # pra pegar qualquer erro que porventura aconteça só na hora de montar
+    # as linhas do arquivo.
+    partes_cabecalho = cabecalho.split()
+
+    if partes_cabecalho[0] != "p" or partes_cabecalho[1] != "cnf":
+        raise ValueError("Cabeçalho DIMACS malformado")
+
+    variaveis_no_cabecalho = int(partes_cabecalho[2])
+    clausulas_no_cabecalho = int(partes_cabecalho[3])
+
+    if variaveis_no_cabecalho != numero_variaveis:
+        raise ValueError("Número de variáveis do cabeçalho não bate com o esperado")
+
+    if clausulas_no_cabecalho != len(linhas_corpo):
+        raise ValueError("Número de cláusulas do cabeçalho não bate com o corpo do arquivo")
+
+    for linha in linhas_corpo:
+        literais = linha.split()
+
+        if literais[-1] != "0":
+            raise ValueError(f"Cláusula não termina em 0: {linha}")
+
+        for literal in literais[:-1]:
+            if not (1 <= abs(int(literal)) <= numero_variaveis):
+                raise ValueError(f"Literal fora do intervalo permitido: {literal}")
 
 def escrever_dimacs(n: int, clausulas: List[Clausula]) -> None:
-
     quantidade_variaveis = n**3
     quantidade_clausulas = len(clausulas)
 
-    print(f"p cnf {quantidade_variaveis} {quantidade_clausulas}")
+    cabecalho = f"p cnf {quantidade_variaveis} {quantidade_clausulas}"
+    linhas_corpo = [" ".join(map(str, clausula)) + " 0" for clausula in clausulas]
 
-    for clausula in clausulas:
-        print(*clausula, 0)
+    validar_saida_dimacs(cabecalho, linhas_corpo, quantidade_variaveis)
 
+    print(cabecalho)
+    for linha in linhas_corpo:
+        print(linha)
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Gerador DIMACS CNF para Chaos Sudoku")
+    parser = argparse.ArgumentParser(
+        description="Gerador DIMACS CNF para Chaos Sudoku. Recebe uma instância "
+                     "(tamanho N + regiões + pistas) e escreve a fórmula CNF em stdout."
+    )
 
-    parser.add_argument("instancia",  help="Caminho para o arquivo da instância")
+    parser.add_argument(
+        "instancia",
+        help="Arquivo de texto com a instância do Chaos Sudoku (tamanho, regiões e pistas)"
+    )
 
     argumentos = parser.parse_args()
     try:
-        n,regioes,pistas = ler_instancia(argumentos.instancia)
+        n, regioes, pistas = ler_instancia(argumentos.instancia)
 
         validar_instancia(n, regioes, pistas)
 
-        clausulas = gerar_cnf(n,regioes, pistas)
+        clausulas = gerar_cnf(n, regioes, pistas)
 
         validar_cnf(n, clausulas, len(pistas))
 
         escrever_dimacs(n, clausulas)
-    except(ValueError, FileNotFoundError, IndexError) as erro:
+    except (ValueError, FileNotFoundError, IndexError) as erro:
         parser.error(str(erro))
 
 if __name__ == "__main__":
