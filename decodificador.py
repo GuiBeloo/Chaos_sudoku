@@ -28,17 +28,79 @@ def ler_modelo(caminho: str) -> list[int]:
 
 def reconstruir_grade(literais: list[int], n: int) -> list[list[int]]:
     grade = [[0 for _ in range(n)] for _ in range(n)]
+    maior_identificador = n ** 3
 
     for literal in literais:
-        if literal > 0:
-            linha, coluna, valor = decodificar_variavel(literal, n)
+        if literal <= 0:
+            continue
 
-            grade[linha - 1][coluna - 1] = valor
+        if literal > maior_identificador:
+            raise ValueError(
+                f"Literal inválido no modelo: {literal}. "
+                f"O maior identificador permitido é {maior_identificador}"
+            )
+
+        linha, coluna, valor = decodificar_variavel(literal, n)
+
+        valor_atual = grade[linha - 1][coluna - 1]
+
+        if valor_atual != 0 and valor_atual != valor:
+            raise ValueError(
+                f"A célula ({linha}, {coluna}) recebeu mais de um valor no modelo"
+            )
+
+        grade[linha - 1][coluna - 1] = valor
+
     return grade
 
-def exibir_grade(grade: list[list[int]]) -> None: 
-    for linha in grade:
-        print(" ".join(map(str, linha)))
+def validar_solucao(
+    grade: list[list[int]],
+    grade_regioes: list[list[str]],
+    n: int
+) -> None:
+    valores_esperados = set(range(1, n + 1))
+
+    for indice, linha in enumerate(grade, start=1):
+        if set(linha) != valores_esperados:
+            raise ValueError(
+                f"A linha {indice} não contém exatamente os valores de 1 a {n}"
+            )
+
+    for coluna in range(n):
+        valores_coluna = {grade[linha][coluna] for linha in range(n)}
+
+        if valores_coluna != valores_esperados:
+            raise ValueError(
+                f"A coluna {coluna + 1} não contém exatamente os valores de 1 a {n}"
+            )
+
+    valores_regioes = {}
+
+    for linha in range(n):
+        if len(grade_regioes[linha]) != n:
+            raise ValueError(
+                f"A linha {linha + 1} da grade de regiões é inválida"
+            )
+
+        for coluna in range(n):
+            regiao = grade_regioes[linha][coluna]
+
+            if regiao not in valores_regioes:
+                valores_regioes[regiao] = []
+
+            valores_regioes[regiao].append(grade[linha][coluna])
+
+    if len(valores_regioes) != n:
+        raise ValueError(
+            f"A instância deveria possuir exatamente {n} regiões"
+        )
+
+    for regiao, valores in valores_regioes.items():
+        if len(valores) != n or set(valores) != valores_esperados:
+            raise ValueError(
+                f"A região {regiao} não contém exatamente os valores de 1 a {n}"
+            )
+
 
 def ler_instancia(caminho: str) -> tuple[int, list[list[str]]]:
 
@@ -100,6 +162,8 @@ def main() -> None:
 
     grade = reconstruir_grade(literais, n)
 
+    validar_solucao(grade, grade_regioes, n)
+
     print("Resultado: SAT")
 
     exibir_grade(grade)
@@ -107,4 +171,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (ValueError, FileNotFoundError, IndexError) as erro:
+        raise SystemExit(f"Erro: {erro}")
